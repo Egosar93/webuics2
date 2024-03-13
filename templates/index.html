@@ -8,14 +8,31 @@
     <h1>Server Verwaltung</h1>
     <form action="/start_server" method="post">
         <input type="text" name="serverName" placeholder="Basisname für Server" required>
-        <input type="number" name="serverCount" placeholder="Anzahl der Server" min="1" required>
+        <input type="number" name="serverCount" placeholder="Anzahl der Server" min="1" max="10" required>
+        <input type="text" name="mapName" placeholder="Kartenname (Map)" required>
+        <select name="gameMode" required>
+            <option value="">Wähle einen Spielmodus</option>
+            <option value="0 0">Casual</option>
+            <option value="0 1">Competitive</option>
+            <option value="1 0">Wingman</option>
+            <option value="1 2">Deathmatch</option>
+            <!-- Fügen Sie weitere Modi hinzu, wenn nötig -->
+        </select>
         <button type="submit">Server starten</button>
     </form>
     <h2>Server Status</h2>
     <ul>
         {% for server in servers %}
-        <li>{{ server.name }} - {{ 'Online' if server.online else 'Offline' }}</li>
+            <li>
+                {{ server.name }} - Port: {{ server.port }} - {{ 'Online' if server.online else 'Offline' }}
+                <!-- Stop-Button für jeden Server -->
+                <form action="/stop_server" method="post" style="display:inline;">
+                    <input type="hidden" name="serverPort" value="{{ server.port }}">
+                    <button type="submit">Stop</button>
+                </form>
+            </li>
         {% endfor %}
-    </ul>
+        </ul>
+
 </body>
 </html>

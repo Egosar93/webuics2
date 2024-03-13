@@ -8,6 +8,10 @@ app = Flask(__name__)
 servers = [
     {'name': 'Server 1', 'port': 27015},
     {'name': 'Server 2', 'port': 27016},
+    {'name': 'Server 3', 'port': 27017},
+    {'name': 'Server 4', 'port': 27018},
+    {'name': 'Server 5', 'port': 27019},
+    {'name': 'Server 6', 'port': 27020},
     # Fügen Sie hier zusätzliche Server mit ihren entsprechenden Ports hinzu
 ]
 
@@ -22,26 +26,52 @@ def is_server_online(port):
         print(f"Fehler beim Überprüfen des Ports {port}: {e}")
         return False
 
+#@app.route('/')
+#def index():
+#    """Zeigt das Hauptformular zum Starten und Stoppen der Server und eine Liste der Server mit ihrem Status an."""
+#    for server in servers:
+#       server['online'] = is_server_online(server['port'])
+#    return render_template('index.html', servers=servers)
+
+#@app.route('/start_server', methods=['POST'])
+#def start_server():
+#    """Startet Server basierend auf den Benutzereingaben."""
+#   server_name = request.form['serverName']
+#    server_count = request.form['serverCount']
+#   script_path = '$HOME/webold/start'  # Pfad zum Start-Skript anpassen
+
+#    try:
+#        subprocess.run([script_path, server_name, server_count], check=True)
+#    except subprocess.CalledProcessError as e:
+#        print(f"Fehler beim Starten der Server: {e}")
+
+#    return redirect(url_for('index'))
+
+#from flask import Flask, render_template, request, redirect, url_for
+#import subprocess
+
+#app = Flask(__name__)
+
 @app.route('/')
 def index():
-    """Zeigt das Hauptformular zum Starten und Stoppen der Server und eine Liste der Server mit ihrem Status an."""
-    for server in servers:
-        server['online'] = is_server_online(server['port'])
-    return render_template('index.html', servers=servers)
+    return render_template('index.html')
 
 @app.route('/start_server', methods=['POST'])
 def start_server():
-    """Startet Server basierend auf den Benutzereingaben."""
     server_name = request.form['serverName']
     server_count = request.form['serverCount']
-    script_path = '$HOME/webold/start'  # Pfad zum Start-Skript anpassen
+    map_name = request.form['mapName']
+    game_mode = request.form['gameMode']
+    game_type, mode = game_mode.split(' ')  # Extrahiert game_type und game_mode
+    script_path = '$HOME/web/start_servers.sh'  # Pfad zum Start-Skript anpassen
 
     try:
-        subprocess.run([script_path, server_name, server_count], check=True)
+        subprocess.run([script_path, server_name, server_count, map_name, game_type, mode], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Starten der Server: {e}")
 
     return redirect(url_for('index'))
+
 
 @app.route('/stop_server', methods=['POST'])
 def stop_server():
