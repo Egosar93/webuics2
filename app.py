@@ -34,7 +34,7 @@ def start_server():
     """Startet Server basierend auf den Benutzereingaben."""
     server_name = request.form['serverName']
     server_count = request.form['serverCount']
-    script_path = '$HOME/web/start_servers.sh'  # Pfad zum Start-Skript anpassen
+    script_path = '$HOME/webold/start'  # Pfad zum Start-Skript anpassen
 
     try:
         subprocess.run([script_path, server_name, server_count], check=True)
