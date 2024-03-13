@@ -1,38 +1,57 @@
 #!/bin/bash
 
-# Überprüft, ob mindestens zwei Argumente übergeben wurden
-if [ "$#" -lt 2 ]; then
-    echo "Fehler: Zu wenige Argumente. Benutzung: $0 <Basisname> <Anzahl der Server>"
+# Überprüft, ob mindestens vier Argumente übergeben wurden
+if [ "$#" -lt 4 ]; then
+    echo "Fehler: Zu wenige Argumente. Benutzung: $0 <Basisname> <Anzahl der Server> <Mapname> <Gamemode>"
     exit 1
 fi
 
-# Nimmt den Basisnamen und die Anzahl der Server von den Befehlszeilenargumenten
+# Nimmt den Basisnamen, die Anzahl der Server, den Mapnamen und den Gamemode von den Befehlszeilenargumenten
 baseServerName=$1
 serverCount=$2
+mapName=$3
+gameMode=$4
 
 # Definiert Start- und Endport
 startPort=27015
-endPort=27050 # Stellen Sie sicher, dass dieser Wert den Startport und die mögliche Anzahl von Servern berücksichtigt
+endPort=27050  # Stellen Sie sicher, dass dieser Wert den Startport und die mögliche Anzahl von Servern berücksichtigt
 
 # Pfad zur ausführbaren Datei des Spiels
 gameExecutable="$HOME/serverfiles/game/bin/linuxsteamrt64/cs2"
 
-# Schleife zum Starten der geforderten Anzahl von Spielservers
-for (( i=0; i<serverCount; i++ ))
+# Erfasst die erste gefundene IP-Adresse des Hosts
+hostIP=$(hostname -I | awk '{print $1}')
+
+# Überprüft, ob die angeforderte Serveranzahl das Maximum überschreitet
+if (( serverCount > maxServers )); then
+    echo "Fehler: Die Anzahl der zu startenden Server ($serverCount) überschreitet das Maximum von $maxServers."
+    exit 1
+fi
+
+# Initialisiert einen Zähler für erfolgreich gestartete Server
+countStarted=0
+
+# Schleife zum Überprüfen und Starten der geforderten Anzahl von Spielservern
+for (( i=1; i<=serverCount; i++ ))
 do
-    port=$((startPort + i))
-    if (( port > endPort )); then
-        echo "Maximale Portanzahl erreicht, kann keine weiteren Server starten."
-        break
+    port=$((startPort + i - 1))
+    # Überprüft, ob der Port bereits verwendet wird
+    if ! lsof -i:$port > /dev/null; then
+        # Generiert den Servernamen basierend auf dem eingegebenen Basisnamen und fügt die Nummer hinzu
+        serverName="${baseServerName}_$i"
+        echo "Versuche, Server '$serverName' auf Port $port zu starten..."
+        
+        # Führt den Befehl zum Starten des Servers aus, inklusive Map und Gamemode
+        $gameExecutable -dedicated -ip 0.0.0.0 -port $port +map $mapName +game_mode $gameMode +maxplayers 16 +exec cs2server.cfg +hostname "$serverName" &
+        
+        echo "Warte auf den Serverstart..."
+        sleep 10  # Wartet 10 Sekunden, bevor der nächste Server gestartet wird
+        echo "Server '$serverName' gestartet."
+        ((countStarted++))
+    else
+        echo "Fehler: Port $port wird bereits verwendet."
     fi
-
-    # Generiert den Servernamen basierend auf dem eingegebenen Basisnamen und fügt die Nummer hinzu
-    serverName="${baseServerName}_${i}"
-    echo "Starte Server: $serverName auf Port $port..."
-
-    # Führt den Befehl zum Starten des Servers aus
-    $gameExecutable -dedicated -ip 0.0.0.0 -port $port +servername "$serverName" &
-    sleep 1 # Kurze Pause, um dem Server Zeit zum Starten zu geben
 done
 
-echo "$i Server(s) gestartet unter Basisnamen $baseServerName."
+# Gibt die Anzahl der erfolgreich gestarteten Server aus
+echo "$countStarted von $serverCount Server(n) erfolgreich gestartet."
