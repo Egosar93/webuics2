@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Verwaltung</title>
+</head>
+<body>
+    <h1>Server Verwaltung</h1>
+    <form action="/start_server" method="post">
+        <input type="text" name="serverName" placeholder="Basisname für Server" required>
+        <input type="number" name="serverCount" placeholder="Anzahl der Server" min="1" required>
+        <button type="submit">Server starten</button>
+    </form>
+    <h2>Server Status</h2>
+    <ul>
+        {% for server in servers %}
+        <li>{{ server.name }} - {{ 'Online' if server.online else 'Offline' }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
