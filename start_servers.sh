@@ -14,7 +14,7 @@ gameMode=$4
 
 # Definiert Start- und Endport
 startPort=27015
-endPort=27050  # Stellen Sie sicher, dass dieser Wert den Startport und die mögliche Anzahl von Servern berücksichtigt
+endPort=27020  # Stellen Sie sicher, dass dieser Wert den Startport und die mögliche Anzahl von Servern berücksichtigt
 
 # Pfad zur ausführbaren Datei des Spiels
 gameExecutable="$HOME/serverfiles/game/bin/linuxsteamrt64/cs2"
